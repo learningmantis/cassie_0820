@@ -3,8 +3,15 @@ import Autosuggest from 'react-autosuggest';
 import Map from "./map.js";
 import searchIcon from "./search.png";
 
+//global object to populate when user makes a selection via 'click'
 let fltObj={};
 
+//data array would provide with the data
+//expected fields:
+//name: name of the airport/airline/flight
+//type/priority: to pick right kind of object incase of multiple selection with similar name(e.g DLLAS Airport V/s delta when user types DAL)
+//priority for now : 1.airline,2.airport,3.flight
+//lat&lon: show lat and longitude co-ordiantes incase of airport and flights
 const languages = [
   {
     name: "KLAX, Los Angeles International Airport",
@@ -84,7 +91,7 @@ function escapeRegexCharacters(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-
+//does a simple find for the item with matching name
 function findItemInFlightsArray(enteredValue){
 
   enteredValue = enteredValue.trim();
@@ -94,7 +101,8 @@ function findItemInFlightsArray(enteredValue){
   return flightObj;
 }
 
-
+//finds the item with the greatest priority amongst items with similar names
+//e.g (DALLAS V/S DELTA, when user types DAL)
 function findPriorityEntryInSuggestionArray(suggestionsArray){
 
   let GreatestPriority = suggestionsArray[0].priority;
@@ -109,7 +117,7 @@ function findPriorityEntryInSuggestionArray(suggestionsArray){
   return(itemWithGreatestPriority);
 }
 
-
+//returs the suggestion list depending on the user input i.e value
 function getSuggestions(value) {
 
   const escapedValue = escapeRegexCharacters(value.trim());
@@ -121,13 +129,16 @@ function getSuggestions(value) {
 }
 
 
-
+//returs the suggestion.name agmonst the suggestion list
+//also populates flightObj on user selection via a click
 function getSuggestionValue(suggestion) {
   console.log("getSuggestionValue:",suggestion)
   fltObj=findItemInFlightsArray(suggestion.name);
   return suggestion.name;
 }
 
+//render suggestion
+//haven't used this much
 function renderSuggestion(suggestion) {
   //console.log("renderSuggestion:",suggestion.name);
   return (
@@ -135,9 +146,14 @@ function renderSuggestion(suggestion) {
   );
 }
 
+//Searchbar class Component
 export class Example extends Component {
   constructor() {
     super();
+//state variables
+//noSuggestion: boolean value
+//true: when the user input yeilds an empty suggestion list
+//isSelectSuggestion: true when user makes a selection from the suggestion list(either through keyboard or mouse click)
 
     this.state = {
       value: '',
@@ -150,14 +166,15 @@ export class Example extends Component {
   }
 
 
-  //Whenever Input changes or selection made using UP & Down arrow
+  //Whenever Input changes or selection made using UP & Down arrow or click
   onChange = (event, { newValue, method }) => {
-
+    //records I guess input box change
     console.log("onchange");
     this.setState({
       value: newValue,
     });
 
+    //onClick
     if(fltObj && method==='click') {
       this.setState({
         lat:   fltObj.lat,
@@ -168,6 +185,8 @@ export class Example extends Component {
       //!!might need to set noSuggestion & isSelectSuggestion to false as a safe bound
     }
 
+
+    //set noSuggestion to false since user has the ability to make a valid selection
     if(method === 'down' || method === 'up') {
       this.setState({
           noSuggestions: false,
@@ -182,12 +201,12 @@ export class Example extends Component {
     }
 
     console.log('Input box:')
-    console.log('Selection: '+ method,this.state.isSelectSuggestion);
+    console.log('KeyPressSelection: '+ method,this.state.isSelectSuggestion);
     console.log('NoSuggestion: '+ method,this.state.noSuggestions);
   };
 
 
-//Whenever user presses enter
+//Callback for whenever user presses enter
   onKeyPress = (e) => {
 
 console.log("onKeyPress");
@@ -201,7 +220,7 @@ console.log("onKeyPress");
          if(this.state.isSelectSuggestion && !this.state.noSuggestions) {
 
            console.log("selection performed");
-           console.log('OnisSelectSuggestion: ',this.state.isSelectSuggestion);
+           console.log('KeyPressSelection-Enter: ',this.state.isSelectSuggestion);
            console.log('NoSuggestions: ',this.state.noSuggestions);
            console.log("name:",this.state.value);
 
@@ -234,7 +253,8 @@ console.log("onKeyPress");
        }
 
 
-       //suggestionsArray present
+       //suggestionsArray present return the 1st item from the suggestion list
+       //might do away with this
        else {
 
       let item = findPriorityEntryInSuggestionArray(this.state.suggestions);
@@ -250,7 +270,8 @@ console.log("onKeyPress");
 }
 
 
-
+// the function to fetch suggestion list
+//it also decides whether user input is valid else set flag noSuggestions
   onSuggestionsFetchRequested = ({ value }) => {
     const suggestions = getSuggestions(value);
     const isInputBlank = value.trim() === '';
@@ -267,12 +288,12 @@ console.log("onKeyPress");
       suggestions,
       noSuggestions
     });
-   console.log("Fetching suggestions:");
+   console.log("Fetching suggestions:",noSuggestions);
    console.log('Nosuggestions:',this.state.noSuggestions);
    console.log('Selection:',this.state.isSelectSuggestion);
   };
 
-
+//this is called when the user clears input through the 'X' mark or a backspace key is hit
   onSuggestionsClearRequested = () => {
     this.setState({
       suggestions: []
@@ -287,6 +308,7 @@ console.log("onKeyPress");
       //console.log('onSuggestionsClearRequested:',this.state);
   };
 
+//the render function
   render() {
 
     const { value, suggestions,noSuggestions } = this.state;
