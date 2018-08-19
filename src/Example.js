@@ -147,13 +147,16 @@ function renderSuggestion(suggestion) {
 }
 
 //Searchbar class Component
-export class Example extends Component {
-  constructor() {
-    super();
+export default class Example extends Component {
+  constructor(props) {
+    super(props);
 //state variables
 //noSuggestion: boolean value
 //true: when the user input yeilds an empty suggestion list
 //isSelectSuggestion: true when user makes a selection from the suggestion list(either through keyboard or mouse click)
+let airlines  =  this.props.data.airlines;
+console.log("airlines: ",airlines);
+
 
     this.state = {
       value: '',
