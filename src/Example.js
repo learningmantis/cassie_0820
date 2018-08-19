@@ -132,7 +132,7 @@ function getSuggestions(value) {
 //returs the suggestion.name agmonst the suggestion list
 //also populates flightObj on user selection via a click
 function getSuggestionValue(suggestion) {
-  console.log("getSuggestionValue:",suggestion)
+  //console.log("getSuggestionValue:",suggestion)
   fltObj=findItemInFlightsArray(suggestion.name);
   return suggestion.name;
 }
@@ -169,7 +169,7 @@ export class Example extends Component {
   //Whenever Input changes or selection made using UP & Down arrow or click
   onChange = (event, { newValue, method }) => {
     //records I guess input box change
-    console.log("onchange");
+    //console.log("onchange");
     this.setState({
       value: newValue,
     });
@@ -200,79 +200,80 @@ export class Example extends Component {
       });
     }
 
-    console.log('Input box:')
-    console.log('KeyPressSelection: '+ method,this.state.isSelectSuggestion);
-    console.log('NoSuggestion: '+ method,this.state.noSuggestions);
+    //console.log('Input box:')
+    //console.log('KeyPressSelection: '+ method,this.state.isSelectSuggestion);
+    //console.log('NoSuggestion: '+ method,this.state.noSuggestions);
   };
+
+
+
+selectValueCallBack= (state,method) =>{
+
+    console.log(`Method ${method}:suggestions: `,state.suggestions);
+    //on selection or Invalid data
+    if (!state.suggestions.length ) {
+      //on Selection
+      if(state.isSelectSuggestion && !state.noSuggestions) {
+
+        console.log(`Method ${method}:selection performed`);
+        console.log(`Method ${method} isSelectSuggestion: `,state.isSelectSuggestion);
+        console.log(`Method ${method} NoSuggestions: `,state.noSuggestions);
+        console.log(`Method ${method} value:`,state.value);
+
+        let selectionItem =  findItemInFlightsArray(state.value);
+       // console.log("selectionItem returned:",selectionItem);
+         this.setState({
+           value: selectionItem.name,
+           lat:   selectionItem.lat,
+           lon:   selectionItem.lon
+         });
+       // console.log( 'selection' + this.state);
+      }
+      else{
+        //no Suggestions to show!
+        console.log(`${method}: Invalid Value!`);
+      }
+
+    }
+
+    //Single item only avaliable
+    else if (state.suggestions.length ===1) {
+      console.log(`${method}: One value returned`);
+      this.setState({
+        value: state.suggestions[0].name,
+        lat: state.suggestions[0].lat,
+        lon: state.suggestions[0].lon
+      });
+    }
+
+    //suggestionsArray present but no selection made
+    else {
+      console.log(`${method}: Suggestion Array returned but no selection`);
+      this.setState({
+        noSuggestions:true
+      });
+    }
+};
+
+
 
 
 //Callback for whenever user presses enter
   onKeyPress = (e) => {
 
-console.log("onKeyPress");
      if(e.key === 'Enter') {
-
-      //e.target.blur();
-
-       //on selection or Invalid data
-       if (!this.state.suggestions.length ) {
-         //on Selection
-         if(this.state.isSelectSuggestion && !this.state.noSuggestions) {
-
-           console.log("selection performed");
-           console.log('KeyPressSelection-Enter: ',this.state.isSelectSuggestion);
-           console.log('NoSuggestions: ',this.state.noSuggestions);
-           console.log("name:",this.state.value);
-
-           let selectionItem =  findItemInFlightsArray(this.state.value);
-          // console.log("selectionItem returned:",selectionItem);
-            this.setState({
-              value: selectionItem.name,
-              lat:   selectionItem.lat,
-              lon:   selectionItem.lon
-            });
-          // console.log( 'selection' + this.state);
-         }
-         else{
-           //no Suggestions to show!
-           console.log('Invalid Value!');
-         }
-
-       }
-
-       //Single item only avaliable
-       else if (this.state.suggestions.length ===1) {
-         console.log("One value returned");
-         this.setState({
-           value: this.state.suggestions[0].name,
-           lat: this.state.suggestions[0].lat,
-           lon: this.state.suggestions[0].lon
-         }
-         );
-
-       }
-
-
-       //suggestionsArray present return the 1st item from the suggestion list
-       //might do away with this
-       else {
-
-      let item = findPriorityEntryInSuggestionArray(this.state.suggestions);
-       console.log('Suggestion Array returned');
-       this.setState({
-         value:  item.name,
-         lat: item.lat,
-         lon: item.lon
-       });
-     }
-
+       console.log("onEnterPress");
+       this.selectValueCallBack(this.state,"Enter");
    }
 }
+
+
 
 
 // the function to fetch suggestion list
 //it also decides whether user input is valid else set flag noSuggestions
   onSuggestionsFetchRequested = ({ value }) => {
+    console.log("OSR:value:",value)
     const suggestions = getSuggestions(value);
     const isInputBlank = value.trim() === '';
     const noSuggestions = !isInputBlank && suggestions.length === 0;
@@ -288,10 +289,42 @@ console.log("onKeyPress");
       suggestions,
       noSuggestions
     });
-   console.log("Fetching suggestions:",noSuggestions);
-   console.log('Nosuggestions:',this.state.noSuggestions);
-   console.log('Selection:',this.state.isSelectSuggestion);
+   console.log("Fetching suggestions:",this.state.suggestions);
+   //console.log("Calc Nosuggestions:",noSuggestions);
+   //console.log('Nosuggestions:',this.state.noSuggestions);
+   //console.log('Selection:',this.state.isSelectSuggestion);
   };
+
+
+  //Callback for whenever user clicks the searchIcon
+    onClickHandleEvent = (e) => {
+
+      let value = this.state.value;
+      const suggestions = getSuggestions(value);
+      const isInputBlank = value.trim() === '';
+      const noSuggestions = !isInputBlank && suggestions.length === 0;
+
+      //if no suggestions, selection false
+      if(noSuggestions){
+        this.setState({
+          isSelectSuggestion:false
+        });
+      }
+
+      //this.state.suggestions = suggestions;
+      this.setState({
+        suggestions,
+        noSuggestions,
+      }, ()=>{console.log("suggestions", this.state.suggestions)});
+
+      console.log("onClickSearchIcon:",this.state.suggestions);
+      console.log("onClickSearchIcon:",suggestions);
+      //this.onSuggestionsFetchRequested(this.state.value);
+      this.selectValueCallBack(this.state,"SearchIcon");
+
+  }
+
+
 
 //this is called when the user clears input through the 'X' mark or a backspace key is hit
   onSuggestionsClearRequested = () => {
@@ -305,7 +338,7 @@ console.log("onKeyPress");
         }
       );
     }
-      //console.log('onSuggestionsClearRequested:',this.state);
+      console.log('onSuggestionsClearRequested:',this.state);
   };
 
 //the render function
@@ -324,6 +357,7 @@ console.log("onKeyPress");
     return (
       <div>
         <div className="autosuggest-container">
+        <img className="search-icon" src={searchIcon} onClick={this.onClickHandleEvent} />
         <Autosuggest
         focusInputOnSuggestionClick ={false}
           suggestions={suggestions}
@@ -332,14 +366,11 @@ console.log("onKeyPress");
           getSuggestionValue={getSuggestionValue}
           renderSuggestion={renderSuggestion}
           inputProps={inputProps} />
-          <img className="search-icon" src={searchIcon} onClick={this.xyz} />
+
           </div>
-          {
-            noSuggestions &&
-            <div className ="no-suggestions">
-            No suggestions!
-            </div>
-          }
+          <div className ="no-suggestions">
+          {noSuggestions && 'No suggestions!'}
+          </div>
             <Map Center={center} Zoom={12} />
 
       </div>

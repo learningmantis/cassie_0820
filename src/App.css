@@ -82,6 +82,7 @@ body {
 .no-suggestions {
   margin-top: 10px;
   padding-left: 10px;
+  height:28px;
   color: red;
 }
 
