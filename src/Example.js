@@ -267,17 +267,18 @@ selectValueCallBack= (state,method) =>{
      if(e.key === 'Enter') {
        console.log("onEnterPress");
        this.selectValueCallBack(this.state,"Enter");
-   }
-}
+     }
+  }
 
 
 
 
 // the function to fetch suggestion list
 //it also decides whether user input is valid else set flag noSuggestions
-  onSuggestionsFetchRequested = ({ value }) => {
+  onSuggestionsFetchRequested = ({ value }, callback) => {
     console.log("OSR:value:",value)
     const suggestions = getSuggestions(value);
+    console.log('suggestions', suggestions);
     const isInputBlank = value.trim() === '';
     const noSuggestions = !isInputBlank && suggestions.length === 0;
 
@@ -288,11 +289,16 @@ selectValueCallBack= (state,method) =>{
       });
     }
 
+    //need to set callback here...
     this.setState({
       suggestions,
       noSuggestions
+    },  () => {
+      if(callback){
+        callback()
+      }
     });
-   console.log("Fetching suggestions:",this.state.suggestions);
+//()=> console.log("Fetching suggestions:",this.state.suggestions)
    //console.log("Calc Nosuggestions:",noSuggestions);
    //console.log('Nosuggestions:',this.state.noSuggestions);
    //console.log('Selection:',this.state.isSelectSuggestion);
@@ -300,9 +306,12 @@ selectValueCallBack= (state,method) =>{
 
 
   //Callback for whenever user clicks the searchIcon
-    onClickHandleEvent = (e) => {
-
-      let value = this.state.value;
+  onClickHandleEvent = (e) => {
+    console.log('icon click');
+    this.onSuggestionsFetchRequested({value: this.state.value},
+    this.selectValueCallBack(this.state,"SearchIcon"));
+      //this.selectValueCallBack(this.state,"SearchIcon");
+      /*let value = this.state.value;
       const suggestions = getSuggestions(value);
       const isInputBlank = value.trim() === '';
       const noSuggestions = !isInputBlank && suggestions.length === 0;
@@ -322,8 +331,8 @@ selectValueCallBack= (state,method) =>{
 
       console.log("onClickSearchIcon:",this.state.suggestions);
       console.log("onClickSearchIcon:",suggestions);
-      //this.onSuggestionsFetchRequested(this.state.value);
-      this.selectValueCallBack(this.state,"SearchIcon");
+      //this.onSuggestionsFetchRequested(this.state.value);*/
+
 
   }
 

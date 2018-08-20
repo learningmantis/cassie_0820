@@ -78,49 +78,7 @@ let AirportsList = {
 
 
 
-function parseData(List,type) {
 
-  let json_airlines =[];
-  let js_airlines =[];
-
-  let json_airports =[];
-  let js_airports=[];
-
-  if(type === "airlines"){
-    json_airlines = List.airlines;
-    console.log("json_airlines:",json_airlines);
-
-  json_airlines.forEach((airline)=> {
-      let airlineobj ={};
-      airlineobj.name = airline.name;
-      airlineobj.type = type;
-      airlineobj.searchstr = airline.ICAO + ','+airline.IATA+','+airline.name
-      //console.log("airlineobj:",airlineobj);
-      js_airlines.push(airlineobj);
-  });
-  console.log("js_airlies: ",js_airlines);
-
-
-  if(type === "airports"){
-    json_airports = List.airports;
-    console.log("json_airports:",json_airports);
-
-  json_airports.forEach((airport)=> {
-      let airportobj ={};
-      airportobj.name = airport.name;
-      airport.type = type;
-      airport.searchstr = airport.ICAO + ','+airport.IATA+','+airport.name
-      //console.log("airportobj:",airportobj);
-      js_airlines.push(airportobj);
-  });
-
-  console.log("js_airports: ",js_airports);
-
-  }
-  //return [];
-}
-
-parseData(airportsList,"airports");
 
 
 
@@ -130,7 +88,7 @@ export default class DataExtract extends Component{
   constructor(props){
     super(props);
     this.state = {
-    //  airlinesList: this.parseDataFunction(airlinesList,"airlines"),
+      airlinesList: this.parseData(airlinesList,"airlines"),
       airlines: [],
       flights: [],
       airports: [],
@@ -142,7 +100,58 @@ export default class DataExtract extends Component{
 
 
 
+  parseData(List,type) {
+
+    let json_airlines =[];
+    let js_airlines =[];
+
+    let json_airports =[];
+    let js_airports=[];
+
+    if(type === "airlines"){
+      json_airlines = List.airlines;
+      console.log("json_airlines:",json_airlines);
+
+    json_airlines.forEach((airline)=> {
+        let airlineobj ={};
+        airlineobj.name = airline.name;
+        airlineobj.type = type;
+        airlineobj.searchstr = airline.ICAO + ','+airline.IATA+','+airline.name
+        //console.log("airlineobj:",airlineobj);
+        js_airlines.push(airlineobj);
+    });
+    console.log("js_airlies: ",js_airlines);
+  }
+
+    if(type === "airports"){
+      json_airports = List.airports;
+      console.log("json_airports:",json_airports);
+
+    json_airports.forEach((airport)=> {
+        let airportobj ={};
+        airportobj.name = airport.name;
+        airport.type = type;
+        airport.searchstr = airport.ICAO + ','+airport.IATA+','+airport.name
+        //console.log("airportobj:",airportobj);
+        js_airlines.push(airportobj);
+    });
+
+    console.log("js_airports: ",js_airports);
+
+    }
+    //return [];
+  }
+
+  //parseData(airportsList,"airports");
+
+consolefun(){
+	console.log("say hi");
+}
+
+
   componentWillMount(){
+		console.log("this is props",this.props);
+		this.consolefun();
     this.setState({
       airports:[
     	{
